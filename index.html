@@ -203,31 +203,6 @@
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
-  /* ── Modal overlay ── */
-  .modal-overlay {
-    display: none;
-    position: fixed; inset: 0; z-index: 999;
-    background: var(--bg);
-    flex-direction: column;
-  }
-  .modal-overlay.open { display: flex; }
-  .modal-bar {
-    display: flex; align-items: center; gap: 12px;
-    padding: 10px 16px;
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    flex-shrink: 0;
-  }
-  .modal-back {
-    display: flex; align-items: center; gap: 6px;
-    background: var(--surface2); border: 1px solid var(--border);
-    border-radius: 7px; padding: 6px 12px;
-    font-size: 13px; font-weight: 600; color: var(--text);
-    cursor: pointer; transition: border-color 0.15s, color 0.15s;
-  }
-  .modal-back:hover { border-color: var(--accent); color: var(--accent); }
-  .modal-title { font-size: 13px; color: var(--muted); }
-  .modal-frame { flex: 1; border: none; width: 100%; background: #fff; }
 </style>
 </head>
 <body>
@@ -241,20 +216,12 @@
   <main id="main"></main>
 </div>
 
-<!-- Modal overlay for same-tab links -->
-<div class="modal-overlay" id="modalOverlay">
-  <div class="modal-bar">
-    <button class="modal-back" onclick="closeModal()">← Back to Navigator</button>
-    <span class="modal-title" id="modalTitle"></span>
-  </div>
-  <iframe class="modal-frame" id="modalFrame" src=""></iframe>
-</div>
 
 <script>
 const BELEN = {
   assignedToMe: { name: "🏠 Assigned to Me", url: "https://app.clickup.com/24512055/v/li/901113123354" },
   createTasks: [
-    { name: "➕ Create a Client Task",      url: "https://app.clickup.com/24512055/v/db/qc1hq-196891", sameTab: true },
+    { name: "➕ Create a Client Task",      url: "https://app.clickup.com/24512055/v/db/qc1hq-196891" },
     { name: "➕ Create a Company Task",     url: "https://app.clickup.com/24512055/v/db/qc1hq-197091" },
     { name: "➕ Create Unassigned LG Task", url: "https://app.clickup.com/24512055/v/db/qc1hq-197251" },
   ],
@@ -617,18 +584,6 @@ const INTERNAL_PLAYBOOK = [
   { name: "Mission, Vision, Values", url: "https://app.clickup.com/24512055/v/db/qc1hq-179531" },
 ];
 
-// ── MODAL ──
-function openModal(url, title) {
-  document.getElementById('modalTitle').textContent = title;
-  document.getElementById('modalFrame').src = url;
-  document.getElementById('modalOverlay').classList.add('open');
-}
-function closeModal() {
-  const overlay = document.getElementById('modalOverlay');
-  overlay.classList.remove('open');
-  document.getElementById('modalFrame').src = '';
-}
-
 // ── STATE ──
 let view = localStorage.getItem('belen_view') || 'home';
 let clientDetailName = null;
@@ -674,14 +629,7 @@ function card(item) {
   const inner = emoji
     ? `<span style="font-size:16px;line-height:1;flex-shrink:0">${emoji}</span><span>${label}</span>`
     : `<span>${label}</span>`;
-  if (item.sameTab) {
-    const safeUrl = item.url.replace(/'/g, "\\'");
-    const safeLabel = label.replace(/'/g, "\\'");
-    return `<button class="card" onclick="openModal('${safeUrl}','${safeLabel}')" style="text-align:left;cursor:pointer;">
-      <div class="card-name">${inner}</div>
-    </button>`;
-  }
-  return `<a class="card" href="${item.url}" target="_blank" rel="noopener">
+  return `<a class="card" href="${item.url}" target="_self">
     <div class="card-name">${inner}</div>
   </a>`;
 }
@@ -689,7 +637,7 @@ function card(item) {
 // ── VIEWS ──
 function renderHome() {
   return `
-    <a class="hero-link" href="${BELEN.assignedToMe.url}" target="_blank" rel="noopener">
+    <a class="hero-link" href="${BELEN.assignedToMe.url}" target="_self">
       <div class="hl-left">
         <div class="hl-icon">🏠</div>
         <div>
@@ -730,7 +678,7 @@ function renderClients() {
         <div class="section-title">${client.name}</div>
         <div class="client-detail-grid">
           ${client.items.map(i => `
-            <a class="client-detail-card" href="${i.url}" target="_blank" rel="noopener">
+            <a class="client-detail-card" href="${i.url}" target="_self">
               <div class="cdc-icon">${i.icon}</div>
               <div class="cdc-name">${i.name}</div>
             </a>
@@ -765,7 +713,7 @@ function renderLG() {
       <div class="section">
         <div class="section-title">${folder.state} <span style="font-weight:400;font-size:11px;color:var(--muted)">${folder.sites.length} site${folder.sites.length!==1?'s':''}</span></div>
         <div class="site-list">
-          ${folder.sites.map(s => `<a class="site-link" href="${s.url}" target="_blank" rel="noopener">${s.name}</a>`).join('')}
+          ${folder.sites.map(s => `<a class="site-link" href="${s.url}" target="_self">${s.name}</a>`).join('')}
         </div>
       </div>`;
   }
