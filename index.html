@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Websiteness — Project Manager</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #222536;
+    --border: #2e3147;
+    --accent: #7c6bf4;
+    --accent2: #4ecdc4;
+    --text: #e8eaf0;
+    --muted: #8b90a8;
+    --radius: 10px;
+    --shadow: 0 4px 24px rgba(0,0,0,0.4);
+    --sidebar-w: 210px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100vh; }
+
+  /* ── Header ── */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .logo { font-size: 15px; font-weight: 700; letter-spacing: -0.3px; color: var(--muted); }
+  .logo span { color: var(--text); }
+  .logo em { color: var(--muted); font-style: normal; font-weight: 400; }
+
+  /* ── Layout ── */
+  .layout { display: flex; height: calc(100vh - 49px); }
+
+  /* ── Sidebar ── */
+  aside {
+    width: var(--sidebar-w);
+    min-width: var(--sidebar-w);
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    padding: 12px 0 24px;
+  }
+  .sidebar-section { margin-bottom: 4px; }
+  .sidebar-label {
+    font-size: 10px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.8px;
+    color: var(--muted); padding: 10px 16px 4px;
+  }
+  .sidebar-item {
+    display: flex; align-items: center; gap: 9px;
+    padding: 7px 16px;
+    font-size: 13px; color: var(--muted);
+    cursor: pointer; border: none; background: none;
+    width: 100%; text-align: left;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    transition: background 0.12s, color 0.12s;
+  }
+  .sidebar-item:hover { background: var(--surface2); color: var(--text); }
+  .sidebar-item.active { background: rgba(124,107,244,0.12); color: var(--accent); font-weight: 600; }
+  .sidebar-item .icon { font-size: 14px; flex-shrink: 0; }
+
+  /* ── Main ── */
+  main { flex: 1; overflow-y: auto; padding: 28px 32px; background: var(--bg); }
+
+  /* ── Tabs ── */
+  .tabs {
+    display: flex; gap: 2px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 28px;
+  }
+  .tab-btn {
+    padding: 9px 18px;
+    font-size: 13px; font-weight: 600;
+    color: var(--muted);
+    background: none; border: none;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* ── Hero link ── */
+  .hero-link {
+    display: flex; align-items: center; justify-content: space-between;
+    background: linear-gradient(135deg, rgba(124,107,244,0.15), rgba(78,205,196,0.08));
+    border: 1px solid rgba(124,107,244,0.35);
+    border-radius: var(--radius);
+    padding: 18px 22px;
+    text-decoration: none; color: var(--text);
+    margin-bottom: 28px;
+    transition: border-color 0.15s, transform 0.1s;
+  }
+  .hero-link:hover { border-color: var(--accent); transform: translateY(-1px); }
+  .hero-link .hl-left { display: flex; align-items: center; gap: 14px; }
+  .hero-link .hl-icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+  }
+  .hero-link .hl-title { font-size: 16px; font-weight: 700; }
+  .hero-link .hl-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .hero-link .hl-arrow { font-size: 20px; color: var(--accent); opacity: 0.7; }
+
+  /* ── Section ── */
+  .section { margin-bottom: 28px; }
+  .section-title {
+    font-size: 11px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.7px;
+    color: var(--muted); margin-bottom: 12px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* ── Cards ── */
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    text-decoration: none; color: var(--text);
+    display: flex; flex-direction: column; gap: 5px;
+    transition: border-color 0.15s, transform 0.1s, box-shadow 0.15s;
+  }
+  .card:hover { border-color: var(--accent); transform: translateY(-1px); box-shadow: var(--shadow); }
+  .card-name { font-size: 13px; font-weight: 500; line-height: 1.4; display: flex; align-items: center; gap: 7px; }
+  .card-sub { font-size: 11px; color: var(--muted); }
+
+  /* ── Client list (alphabetical) ── */
+  .client-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 8px;
+  }
+  .client-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 11px 14px;
+    font-size: 13px; font-weight: 600;
+    color: var(--text); cursor: pointer;
+    text-align: left;
+    display: flex; align-items: center; gap: 8px;
+    transition: border-color 0.15s, transform 0.1s;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .client-btn:hover { border-color: var(--accent); transform: translateY(-1px); }
+  .client-btn .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+
+  /* ── Client detail ── */
+  .back-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: none; border: none;
+    color: var(--muted); font-size: 13px; cursor: pointer;
+    padding: 0; margin-bottom: 20px;
+    transition: color 0.15s;
+  }
+  .back-btn:hover { color: var(--accent); }
+
+  .client-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 10px;
+  }
+  .client-detail-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    text-decoration: none; color: var(--text);
+    display: flex; flex-direction: column; gap: 6px;
+    transition: border-color 0.15s, transform 0.1s;
+  }
+  .client-detail-card:hover { border-color: var(--accent); transform: translateY(-1px); }
+  .cdc-icon { font-size: 20px; }
+  .cdc-name { font-size: 13px; font-weight: 600; }
+  .cdc-type { font-size: 11px; color: var(--muted); }
+
+  /* State folders (LG) */
+  .state-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 8px;
+  }
+  .state-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px 14px;
+    font-size: 13px; font-weight: 600;
+    color: var(--text); cursor: pointer;
+    text-align: left;
+    display: flex; align-items: center; justify-content: space-between;
+    transition: border-color 0.15s;
+  }
+  .state-btn:hover { border-color: var(--accent); }
+  .state-count { font-size: 11px; color: var(--muted); font-weight: 400; }
+
+  .site-list { display: flex; flex-direction: column; gap: 6px; }
+  .site-link {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 14px;
+    font-size: 13px; color: var(--text);
+    text-decoration: none;
+    display: flex; align-items: center; gap: 8px;
+    transition: border-color 0.15s;
+  }
+  .site-link:hover { border-color: var(--accent); }
+  .site-link .badge { font-size: 10px; color: var(--muted); background: var(--surface2); padding: 2px 6px; border-radius: 4px; }
+
+  /* Dept tasks */
+  .dept-list { display: flex; flex-direction: column; gap: 6px; }
+
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo"><span>Websiteness Navigator</span> <em>— Project Manager</em></div>
+</header>
+
+<div class="layout">
+  <aside id="sidebar"></aside>
+  <main id="main"></main>
+</div>
+
+<script>
+// ─────────────────────────────────────────────────────────────
+// DATA
+// ─────────────────────────────────────────────────────────────
+
+const BELEN = {
+  assignedToMe: { name: "🏠 Assigned to Me", url: "https://app.clickup.com/24512055/v/li/901113123354" },
+  createTasks: [
+    { name: "➕ Create a Client Task",        url: "https://app.clickup.com/24512055/v/db/qc1hq-196891" },
+    { name: "➕ Create a Company Task",       url: "https://app.clickup.com/24512055/v/db/qc1hq-197091" },
+    { name: "➕ Create Unassigned LG Task",   url: "https://app.clickup.com/24512055/v/db/qc1hq-197251" },
+  ],
+  additional: [
+    { name: "⏰ Time Tracking",              url: "https://app.clickup.com/24512055/v/li/901113344749" },
+    { name: "👀 Created by Me",              url: "https://app.clickup.com/24512055/v/li/901113148436" },
+    { name: "🏖️ Time Off",                  url: "https://app.clickup.com/24512055/v/li/901113138539" },
+    { name: "💳 Submit Client Expense",      url: "https://app.clickup.com/24512055/v/db/qc1hq-207391" },
+    { name: "🚨 Report & Recognize",         url: "https://app.clickup.com/24512055/v/db/qc1hq-219971" },
+    { name: "🧠 1:3:1 Issue Submission",     url: "https://app.clickup.com/24512055/v/db/qc1hq-237991" },
+  ],
+};
+
+const PM_WORKSPACE = {
+  tasks: [
+    { name: "🗂️ Client Tasks",        url: "https://app.clickup.com/24512055/v/li/901113129916" },
+    { name: "🗂️ LG Unassigned Tasks", url: "https://app.clickup.com/24512055/v/li/901113283237" },
+  ],
+  resources: [
+    { name: "🧑‍💼 Staff Capacity",        url: "https://app.clickup.com/24512055/v/db/qc1hq-218131" },
+    { name: "👥 My Clients Info",          url: "https://app.clickup.com/24512055/v/db/qc1hq-213271" },
+    { name: "💳 Submit Client Expense",    url: "https://app.clickup.com/24512055/v/db/qc1hq-184851" },
+  ],
+};
+
+const ACTIVE_CLIENTS = [
+  { name: "Alden Test",                    folder: "90117907055", items: [
+    { name: "Deliverables",      url: "https://app.clickup.com/24512055/v/li/901113646631", icon: "✅" },
+    { name: "Assigned LG Sites", url: "https://app.clickup.com/24512055/v/li/901113646632", icon: "📍" },
+    { name: "Planner",           url: "https://app.clickup.com/24512055/v/li/901113646630", icon: "📅" },
+    { name: "INFO",              url: "https://app.clickup.com/24512055/v/dc/qc1hq-234831", icon: "📄" },
+  ]},
+  { name: "Art Epoxy Designs",             folder: "90117889991", items: [
+    { name: "Deliverables",      url: "https://app.clickup.com/24512055/v/li/901113611998", icon: "✅" },
+    { name: "Assigned LG Sites", url: "https://app.clickup.com/24512055/v/li/901113611999", icon: "📍" },
+    { name: "Planner",           url: "https://app.clickup.com/24512055/v/li/901113611997", icon: "📅" },
+    { name: "Art Epoxy Designs Info", url: "https://app.clickup.com/24512055/v/dc/qc1hq-227311", icon: "📄" },
+  ]},
+  { name: "Brant Ebbing",                  folder: "90117889973", items: [
+    { name: "Deliverables",      url: "https://app.clickup.com/24512055/v/li/901113611951", icon: "✅" },
+    { name: "Assigned LG Sites", url: "https://app.clickup.com/24512055/v/li/901113611952", icon: "📍" },
+    { name: "Planner",           url: "https://app.clickup.com/24512055/v/li/901113611950", icon: "📅" },
+    { name: "Brant Ebbing Info", url: "https://app.clickup.com/24512055/v/dc/qc1hq-225231", icon: "📄" },
+  ]},
+  { name: "Cain Construction",             folder: "90117889981", items: [
+    { name: "Deliverables",      url: "https://app.clickup.com/24512055/v/li/901113611970", icon: "✅" },
+    { name: "Assigned LG Sites", url: "https://app.clickup.com/24512055/v/li/901113611971", icon: "📍" },
+    { name: "Planner",           url: "https://app.clickup.com/24512055/v/li/901113611969", icon: "📅" },
+    { name: "Cain Construction Info", url: "https://app.clickup.com/24512055/v/dc/qc1hq-226031", icon: "📄" },
+  ]},
+  { name: "Coatings Hub",                  folder: "90117890011", items: [
+    { name: "Deliverables",      url: "https://app.clickup.com/24512055/v/li/901113612038", icon: "✅" },
+    { name: "Assigned LG Sites", url: "https://app.clickup.com/24512055/v/li/901113612039", icon: "📍" },
+    { name: "Planner",           url: "https://app.clickup.com/24512055/v/li/901113612037", icon: "📅" },
+    { name: "Coatings Hub Info", url: "https://app.clickup.com/24512055/v/dc/qc1hq-228911", icon: "📄" },
+  ]},
+  { name: "Concept Coatings",              folder: "90117890002", items: [
+    { name: "Deliverables",      url: "https://app.clickup.com/24512055/v/li/901113612012", icon: "✅" },
+    { name: "Assigned LG Sites", url: "https://app.clickup.com/24512055/v/li/901113612013", icon: "📍" },
+    { name: "Planner",           url: "https://app.clickup.com/24512055/v/li/901113612011", icon: "📅" },
+    { name: "Concept Coatings Info", url: "https://app.clickup.com/24512055/v/dc/qc1hq-227631", icon: "📄" },
+  ]},
+  { name: "Creative Flooring",             folder: "90117914939", items: [
+    { name: "Deliverables",      url: "https://app.clickup.com/24512055/v/li/901113663594", icon: "✅" },
+    { name: "Assigned LG Sites", url: "https://app.clickup.com/24512055/v/li/901113663596", icon: "📍" },
+    { name: "Planner",           url: "https://app.clickup.com/24512055/v/li/901113663595", icon: "📅" },
+    { name: "Creative Flooring Info", url: "https://app.clickup.com/24512055/v/dc/qc1hq-236251", icon: "📄" },
+  ]},
+  { name: "CRIC Services",                 folder: "90117889978", items: [
+    { name: "Deliverables",      url: "https://app.clickup.com/24512055/v/li/901113611964", icon: "✅" },
+    { name: "Assigned LG Sites", url: "https://app.clickup.com/24512055/v/li/901113611965", icon: "📍" },
+    { name: "Planner",           url: "https://app.clickup.com/24512055/v/li/901113611962", icon: "📅" },
+    { name: "CRIC Services Info", url: "https://app.clickup.com/24512055/v/dc/qc1hq-225711", icon: "📄" },
+  ]},
+  { name: "CT Vegas",                      folder: "90117890004", items: [
+    { name: "Deliverables",      url: "https://app.clickup.com/24512055/v/li/901113612019", icon: "✅" },
+    { name: "Assigned LG Sites", url: "https://app.clickup.com/24512055/v/li/901113612020", icon: "📍" },
+    { name: "Planner",           url: "https://app.clickup.com/24512055/v/li/901113612017", icon: "📅" },
+    { name: "CT Vegas Info",     url: "https://app.clickup.com/24512055/v/dc/qc1hq-227951", icon: "📄" },
+  ]},
+  { name: "Dallas Epoxy Guys",             folder: "90117901385", items: [
+    { name: "Deliverables",      url: "https://app.clickup.com/24512055/v/li/901113635603", icon: "✅" },
+    { name: "Assigned LG Sites", url: "https://app.clickup.com/24512055/v/li/901113635604", icon: "📍" },
+    { name: "Planner",           url: "https://app.clickup.com/24512055/v/li/901113635602", icon: "📅" },
+    { name: "Dallas Epoxy Guys Info", url: "https://app.clickup.com/24512055/v/dc/qc1hq-234511", icon: "📄" },
+  ]},
+  { name: "David Paul Foster Company",     folder: "90117890005", items: [
+    { name: "Deliverables",      url: "https://app.clickup.com/24512055/v/li/901113612022", icon: "✅" },
+    { name: "Assigned LG Sites", url: "https://app.clickup.com/24512055/v/li/901113612023", icon: "📍" },
+    { name: "Planner",           url: "https://app.clickup.com/24512055/v/li/901113612021", icon: "📅" },
+    { name: "David Paul Foster Company Info", url: "https://app.clickup.com/24512055/v/dc/qc1hq-228111", icon: "📄" },
+  ]},
+  { name: "Dyon Construction",             folder: "90117949888", items: [
+    { name: "Deliverables",      url: "https://app.clickup.com/24512055/v/li/901113735424", icon: "✅" },
+    { name: "Assigned LG Sites", url: "https://app.clickup.com/24512055/v/li/901113735425", icon: "📍" },
+    { name: "Planner",           url: "https://app.clickup.com/24512055/v/li/901113735423", icon: "📅" },
+    { name: "Dyon Construction Info", url: "https://app.clickup.com/24512055/v/dc/qc1hq-238651", icon: "📄" },
+  ]},
+  { name: "Economy Towing",                folder: "90117889986", items: [
+    { name: "Deliverables",      url: "https://app.clickup.com/24512055/v/li/901113611984", icon: "✅" },
+    { name: "Assigned LG Sites", url: "https://app.clickup.com/24512055/v/li/901113611985", icon: "📍" },
+    { name: "Planner",           url: "https://app.clickup.com/24512055/v/li/901113611983", icon: "📅" },
+    { name: "Economy Towing Info", url: "https://app.clickup.com/24512055/v/dc/qc1hq-226671", icon: "📄" },
+  ]},
+  { name: "Envirodek",                     folder: "90117889987", items: [
+    { name: "Deliverables",      url: "https://app.clickup.com/24512055/v/li/901113611987", icon: "✅" },
+    { name: "Assigned LG Sites", url: "https://app.clickup.com/24512055/v/li/901113611988", icon: "📍" },
+    { name: "Planner",           url: "https://app.clickup.com/24512055/v/li/901113611986", icon: "📅" },
+    { name: "Envirodek Info",    url: "https://app.clickup.com/24512055/v/dc/qc1hq-226831", icon: "📄" },
+  ]},
+  { name: "Epoxy Floors Texas",            folder: "90117889975", items: [
+    { name: "Deliverables",      url: "https://app.clickup.com/24512055/v/li/901113611956", icon: "✅" },
+    { name: "Assigned LG Sites", url: "https://app.clickup.com/24512055/v/li/901113611957", icon: "📍" },
+    { name: "Planner",           url: "https://app.clickup.com/24512055/v/li/901113611953", icon: "📅" },
+    { name: "Epoxy Floors Texas Info", url: "https://app.clickup.com/24512055/v/dc/qc1hq-225391", icon: "📄" },
+  ]},
+  { name: "Fix My Quack",                  folder: "90117889988", items: [
+    { name: "Deliverables",      url: "https://app.clickup.com/24512055/v/li/901113611991", icon: "✅" },
+    { name: "Assigned LG Sites", url: "https://app.clickup.com/24512055/v/li/901113611992", icon: "📍" },
+    { name: "Planner",           url: "https://app.clickup.com/24512055/v/li/901113611990", icon: "📅" },
+    { name: "Fix My Quack Info", url: "https://app.clickup.com/24512055/v/dc/qc1hq-226991", icon: "📄" },
+  ]},
+  { name: "Garage Floor Coatings of Boston", folder: "90117889980", items: [
+    { name: "Deliverables",      url: "https://app.clickup.com/24512055/v/li/901113611967", icon: "✅" },
+    { name: "Assigned LG Sites", url: "https://app.clickup.com/24512055/v/li/901113611968", icon: "📍" },
+    { name: "Planner",           url: "https://app.clickup.com/24512055/v/li/901113611966", icon: "📅" },
+    { name: "Garage Floor Coatings Boston Info", url: "https://app.clickup.com/24512055/v/dc/qc1hq-225871", icon: "📄" },
+  ]},
+  { name: "Grizzly Mountain Contracting",  folder: "90117890009", items: [
+    { name: "Deliverables",      url: "https://app.clickup.com/24512055/v/li/901113612032", icon: "✅" },
+    { name: "Assigned LG Sites", url: "https://app.clickup.com/24512055/v/li/901113612033", icon: "📍" },
+    { name: "Planner",           url: "https://app.clickup.com/24512055/v/li/901113612031", icon: "📅" },
+    { name: "Grizzly Mountain Contracting Info", url: "https://app.clickup.com/24512055/v/dc/qc1hq-228591", icon: "📄" },
+  ]},
+  { name: "J&S Steamway",                  folder: "90117928659", items: [
+    { name: "Deliverables",      url: "https://app.clickup.com/24512055/v/li/901113690669", icon: "✅" },
+    { name: "Assigned LG Sites", url: "https://app.clickup.com/24512055/v/li/901113690670", icon: "📍" },
+    { name: "Planner",           url: "https://app.clickup.com/24512055/v/li/901113690668", icon: "📅" },
+    { name: "J&S Steamway Info", url: "https://app.clickup.com/24512055/v/dc/qc1hq-237631", icon: "📄" },
+  ]},
+  { name: "Jason Thorn",                   folder: "90117889972", items: [
+    { name: "Deliverables",      url: "https://app.clickup.com/24512055/v/li/901113611946", icon: "✅" },
+    { name: "Assigned LG Sites", url: "https://app.clickup.com/24512055/v/li/901113611947", icon: "📍" },
+    { name: "Planner",           url: "https://app.clickup.com/24512055/v/li/901113611944", icon: "📅" },
+    { name: "Jason Thorn Info",  url: "https://app.clickup.com/24512055/v/dc/qc1hq-225071", icon: "📄" },
+  ]},
+  { name: "Joseph Zich",                   folder: "90117889984", items: [
+    { name: "Deliverables",      url: "https://app.clickup.com/24512055/v/li/901113611977", icon: "✅" },
+    { name: "Assigned LG Sites", url: "https://app.clickup.com/24512055/v/li/901113611978", icon: "📍" },
+    { name: "Planner",           url: "https://app.clickup.com/24512055/v/li/901113611976", icon: "📅" },
+    { name: "Joseph Zich Info",  url: "https://app.clickup.com/24512055/v/dc/qc1hq-226351", icon: "📄" },
+  ]},
+  { name: "Kathleen Smith",                folder: "90117889985", items: [
+    { name: "Deliverables",      url: "https://app.clickup.com/24512055/v/li/901113611981", icon: "✅" },
+    { name: "Assigned LG Sites", url: "https://app.clickup.com/24512055/v/li/901113611982", icon: "📍" },
+    { name: "Planner",           url: "https://app.clickup.com/24512055/v/li/901113611980", icon: "📅" },
+    { name: "Kathleen Smith Info", url: "https://app.clickup.com/24512055/v/dc/qc1hq-226511", icon: "📄" },
+  ]},
+  { name: "Legendary Sport Construction",  folder: "90117890010", items: [
+    { name: "Deliverables",      url: "https://app.clickup.com/24512055/v/li/901113612035", icon: "✅" },
+    { name: "Assigned LG Sites", url: "https://app.clickup.com/24512055/v/li/901113612036", icon: "📍" },
+    { name: "Planner",           url: "https://app.clickup.com/24512055/v/li/901113612034", icon: "📅" },
+    { name: "Legendary Sports Construction Info", url: "https://app.clickup.com/24512055/v/dc/qc1hq-228751", icon: "📄" },
+  ]},
+  { name: "OCD Building & Remodeling",     folder: "90117890003", items: [
+    { name: "Deliverables",      url: "https://app.clickup.com/24512055/v/li/901113612015", icon: "✅" },
+    { name: "Assigned LG Sites", url: "https://app.clickup.com/24512055/v/li/901113612016", icon: "📍" },
+    { name: "Planner",           url: "https://app.clickup.com/24512055/v/li/901113612014", icon: "📅" },
+    { name: "OCD Building and Remodeling Info", url: "https://app.clickup.com/24512055/v/dc/qc1hq-227791", icon: "📄" },
+  ]},
+  { name: "Precision Epoxy Flooring",      folder: "90117890007", items: [
+    { name: "Deliverables",      url: "https://app.clickup.com/24512055/v/li/901113612029", icon: "✅" },
+    { name: "Assigned LG Sites", url: "https://app.clickup.com/24512055/v/li/901113612030", icon: "📍" },
+    { name: "Planner",           url: "https://app.clickup.com/24512055/v/li/901113612027", icon: "📅" },
+    { name: "Precision Epoxy Flooring Info", url: "https://app.clickup.com/24512055/v/dc/qc1hq-228431", icon: "📄" },
+  ]},
+  { name: "Premier Edge",                  folder: "90117890016", items: [
+    { name: "Deliverables",      url: "https://app.clickup.com/24512055/v/li/901113612049", icon: "✅" },
+    { name: "Assigned LG Sites", url: "https://app.clickup.com/24512055/v/li/901113612050", icon: "📍" },
+    { name: "Planner",           url: "https://app.clickup.com/24512055/v/li/901113612048", icon: "📅" },
+    { name: "Premier Edge Info", url: "https://app.clickup.com/24512055/v/dc/qc1hq-229391", icon: "📄" },
+  ]},
+  { name: "Renaissance Catering",          folder: "90117889983", items: [
+    { name: "Deliverables",      url: "https://app.clickup.com/24512055/v/li/901113611974", icon: "✅" },
+    { name: "Assigned LG Sites", url: "https://app.clickup.com/24512055/v/li/901113611975", icon: "📍" },
+    { name: "Planner",           url: "https://app.clickup.com/24512055/v/li/901113611973", icon: "📅" },
+    { name: "Renaissance Catering Info", url: "https://app.clickup.com/24512055/v/dc/qc1hq-226191", icon: "📄" },
+  ]},
+  { name: "Reveles Concrete",              folder: "90117890013", items: [
+    { name: "Deliverables",      url: "https://app.clickup.com/24512055/v/li/901113612045", icon: "✅" },
+    { name: "Assigned LG Sites", url: "https://app.clickup.com/24512055/v/li/901113612046", icon: "📍" },
+    { name: "Planner",           url: "https://app.clickup.com/24512055/v/li/901113612044", icon: "📅" },
+    { name: "Reveles Concrete Info", url: "https://app.clickup.com/24512055/v/dc/qc1hq-229231", icon: "📄" },
+  ]},
+  { name: "Rock Star Coating Pros",        folder: "90117889990", items: [
+    { name: "Deliverables",      url: "https://app.clickup.com/24512055/v/li/901113611994", icon: "✅" },
+    { name: "Assigned LG Sites", url: "https://app.clickup.com/24512055/v/li/901113611995", icon: "📍" },
+    { name: "Planner",           url: "https://app.clickup.com/24512055/v/li/901113611993", icon: "📅" },
+    { name: "Rock Star Coating Pros Info", url: "https://app.clickup.com/24512055/v/dc/qc1hq-227151", icon: "📄" },
+  ]},
+  { name: "R&T Yoder",                     folder: "90117889992", items: [
+    { name: "Deliverables",      url: "https://app.clickup.com/24512055/v/li/901113612008", icon: "✅" },
+    { name: "Assigned LG Sites", url: "https://app.clickup.com/24512055/v/li/901113612009", icon: "📍" },
+    { name: "Planner",           url: "https://app.clickup.com/24512055/v/li/901113612000", icon: "📅" },
+    { name: "R&T Yoder Info",    url: "https://app.clickup.com/24512055/v/dc/qc1hq-227471", icon: "📄" },
+  ]},
+  { name: "Three Brothers Tree Care",      folder: "90117890006", items: [
+    { name: "Deliverables",      url: "https://app.clickup.com/24512055/v/li/901113612025", icon: "✅" },
+    { name: "Assigned LG Sites", url: "https://app.clickup.com/24512055/v/li/901113612026", icon: "📍" },
+    { name: "Planner",           url: "https://app.clickup.com/24512055/v/li/901113612024", icon: "📅" },
+    { name: "Three Brothers Tree Care Info", url: "https://app.clickup.com/24512055/v/dc/qc1hq-228271", icon: "📄" },
+  ]},
+  { name: "Trueline",                      folder: "90117890012", items: [
+    { name: "Deliverables",      url: "https://app.clickup.com/24512055/v/li/901113612041", icon: "✅" },
+    { name: "Assigned LG Sites", url: "https://app.clickup.com/24512055/v/li/901113612042", icon: "📍" },
+    { name: "Planner",           url: "https://app.clickup.com/24512055/v/li/901113612040", icon: "📅" },
+    { name: "Trueline Info",     url: "https://app.clickup.com/24512055/v/dc/qc1hq-229071", icon: "📄" },
+  ]},
+];
+
+const LG_ASSIGNED = [
+  { state: "Alaska",      folder: "90117892422", sites: [{ name: "[AK] epoxyanchorage.com", url: "https://app.clickup.com/24512055/v/li/901113616854" }] },
+  { state: "Arizona",     folder: "90117959606", sites: [
+    { name: "[AZ] epoxyphoenix.com",           url: "https://app.clickup.com/24512055/v/li/901113755309" },
+    { name: "[AZ] pooldeckrepairphoenix.com",   url: "https://app.clickup.com/24512055/v/li/901113755320" },
+    { name: "[AZ] epoxyfloorsscottsdale.com",   url: "https://app.clickup.com/24512055/v/li/901113755323" },
+  ]},
+  { state: "Arkansas",    folder: "90117892424", sites: [
+    { name: "[AR] epoxyarkansas.com",   url: "https://app.clickup.com/24512055/v/li/901113616855" },
+    { name: "[AR] epoxyfayetteville.com", url: "https://app.clickup.com/24512055/v/li/901113616858" },
+    { name: "[AR] epoxyfullerton.com",   url: "https://app.clickup.com/24512055/v/li/901113616861" },
+    { name: "[AR] epoxyrogers.com",      url: "https://app.clickup.com/24512055/v/li/901113616862" },
+    { name: "[AR] epoxyspringdale.com",  url: "https://app.clickup.com/24512055/v/li/901113616866" },
+    { name: "[AR] epoxytorrance.com",    url: "https://app.clickup.com/24512055/v/li/901113616871" },
+  ]},
+  { state: "California",  folder: "90117892431", sites: [
+    { name: "[CA] concretepolishingla.com",          url: "https://app.clickup.com/24512055/v/li/901113616873" },
+    { name: "[CA] epoxyanaheim.com",                  url: "https://app.clickup.com/24512055/v/li/901113616875" },
+    { name: "[CA] epoxybuenapark.com",                url: "https://app.clickup.com/24512055/v/li/901113616882" },
+    { name: "[CA] epoxyflooringcorona.com",           url: "https://app.clickup.com/24512055/v/li/901113616885" },
+    { name: "[CA] epoxyflooringhuntingtonbeach.com",  url: "https://app.clickup.com/24512055/v/li/901113616890" },
+    { name: "[CA] epoxyflooringirvine.com",           url: "https://app.clickup.com/24512055/v/li/901113616891" },
+    { name: "[CA] epoxyflooringmurrieta.com",         url: "https://app.clickup.com/24512055/v/li/901113616894" },
+    { name: "[CA] epoxyflooringnewportbeach.com",     url: "https://app.clickup.com/24512055/v/li/901113616896" },
+    { name: "[CA] epoxyflooringriverside.com",        url: "https://app.clickup.com/24512055/v/li/901113616898" },
+    { name: "[CA] epoxyflooringtemecula.com",         url: "https://app.clickup.com/24512055/v/li/901113616903" },
+    { name: "[CA] epoxysacramento.com",               url: "https://app.clickup.com/24512055/v/li/901113616904" },
+    { name: "[CA] epoxysandiego.com",                 url: "https://app.clickup.com/24512055/v/li/901113616906" },
+    { name: "[CA] epoxysanfrancisco.com",             url: "https://app.clickup.com/24512055/v/li/901113616909" },
+    { name: "[CA] epoxysanjose.com",                  url: "https://app.clickup.com/24512055/v/li/901113616910" },
+    { name: "[CA] longbeachepoxy.com",                url: "https://app.clickup.com/24512055/v/li/901113616912" },
+    { name: "[CA] losangelesepoxy.com",               url: "https://app.clickup.com/24512055/v/li/901113616914" },
+    { name: "[CA] pooldecklosangeles.com",            url: "https://app.clickup.com/24512055/v/li/901113616916" },
+    { name: "[CA] pooldeckresurfacingsd.com",         url: "https://app.clickup.com/24512055/v/li/901113616919" },
+    { name: "[CA] pooldeckriverside.com",             url: "https://app.clickup.com/24512055/v/li/901113616928" },
+    { name: "[CA] sportandgamecourts.com",            url: "https://app.clickup.com/24512055/v/li/901113616929" },
+    { name: "[CA] sportcourtresurfacing.com",         url: "https://app.clickup.com/24512055/v/li/901113616933" },
+  ]},
+  { state: "Florida",     folder: "90117892451", sites: [
+    { name: "[FL] concretepolishingmiamifl.com", url: "https://app.clickup.com/24512055/v/li/901113616934" },
+    { name: "[FL] epoxyboca.com",                url: "https://app.clickup.com/24512055/v/li/901113616936" },
+    { name: "[FL] epoxyfloorbocaraton.com",      url: "https://app.clickup.com/24512055/v/li/901113616942" },
+    { name: "[FL] epoxyflooringmiami.com",       url: "https://app.clickup.com/24512055/v/li/901113616946" },
+    { name: "[FL] epoxyflooringpanamacity.com",  url: "https://app.clickup.com/24512055/v/li/901113616949" },
+    { name: "[FL] fortlauderdaleepoxy.com",      url: "https://app.clickup.com/24512055/v/li/901113616951" },
+  ]},
+  { state: "Georgia",     folder: "90117883483", sites: [
+    { name: "[GA] castleepoxyflooring.com",    url: "https://app.clickup.com/24512055/v/li/901113616954" },
+    { name: "[GA] epoxyflooringalbany.com",     url: "https://app.clickup.com/24512055/v/li/901113616956" },
+    { name: "[GA] epoxyflooringatlantaga.com",  url: "https://app.clickup.com/24512055/v/li/901113616959" },
+    { name: "[GA] epoxyflooringvaldosta.com",   url: "https://app.clickup.com/24512055/v/li/901113616963" },
+    { name: "[GA] epoxygeorgia.com",            url: "https://app.clickup.com/24512055/v/li/901113616969" },
+    { name: "[GA] epoxytallahassee.com",        url: "https://app.clickup.com/24512055/v/li/901113616971" },
+  ]},
+  { state: "Michigan",    folder: "90117883485", sites: [
+    { name: "[MI] armorgleams.com",                  url: "https://app.clickup.com/24512055/v/li/901113616975" },
+    { name: "[MI] deckbuildergrandrapids.com",        url: "https://app.clickup.com/24512055/v/li/901113616978" },
+    { name: "[MI] eastgateconcretecontractor.com",    url: "https://app.clickup.com/24512055/v/li/901113616983" },
+    { name: "[MI] epoxybasementfloor.com",            url: "https://app.clickup.com/24512055/v/li/901113616990" },
+    { name: "[MI] epoxyflooringannarbor.com",         url: "https://app.clickup.com/24512055/v/li/901113616993" },
+    { name: "[MI] epoxyflooringdetroit.com",          url: "https://app.clickup.com/24512055/v/li/901113616994" },
+    { name: "[MI] epoxyflooringgrandrapids.com",      url: "https://app.clickup.com/24512055/v/li/901113616997" },
+    { name: "[MI] epoxylansing.com",                  url: "https://app.clickup.com/24512055/v/li/901113617001" },
+    { name: "[MI] grandrapidsremodel.com",            url: "https://app.clickup.com/24512055/v/li/901113617109" },
+    { name: "[MI] polishedconcretemichigan.com",      url: "https://app.clickup.com/24512055/v/li/901113617111" },
+    { name: "[MI] inspiredbyepoxycoatings.com",       url: "https://app.clickup.com/24512055/v/li/901113617120" },
+    { name: "[MI] landscapeedginggrandrapids.com",    url: "https://app.clickup.com/24512055/v/li/901113617126" },
+  ]},
+  { state: "Montana",     folder: "90117883486", sites: [
+    { name: "[MT] epoxycountertops.org", url: "https://app.clickup.com/24512055/v/li/901113617088" },
+    { name: "[MT] epoxymissoula.com",    url: "https://app.clickup.com/24512055/v/li/901113617095" },
+    { name: "[MT] paintermissoula.com",  url: "https://app.clickup.com/24512055/v/li/901113617097" },
+  ]},
+  { state: "Nevada",      folder: "90117883488", sites: [
+    { name: "[NV] concretepatiolasvegas.com",  url: "https://app.clickup.com/24512055/v/li/901113617064" },
+    { name: "[NV] ctvegas.com",                url: "https://app.clickup.com/24512055/v/li/901113617065" },
+    { name: "[NV] paverlasvegas.com",          url: "https://app.clickup.com/24512055/v/li/901113617067" },
+    { name: "[NV] pooldeckresurface.com",      url: "https://app.clickup.com/24512055/v/li/901113617071" },
+    { name: "[NV] Economytowing.com",          url: "https://app.clickup.com/24512055/v/li/901113617074" },
+    { name: "[NV] towingcompanylasvegas.com",  url: "https://app.clickup.com/24512055/v/li/901113617077" },
+    { name: "[NV] towtruckhenderson.com",      url: "https://app.clickup.com/24512055/v/li/901113617081" },
+    { name: "[NV] carpetcleaningnv.com",       url: "https://app.clickup.com/24512055/v/li/901113617099" },
+    { name: "[NV] carpetcleaningreno.org",     url: "https://app.clickup.com/24512055/v/li/901113617104" },
+    { name: "[NV] nevadacourtbuilders.com",    url: "https://app.clickup.com/24512055/v/li/901113617105" },
+    { name: "[NV] poolbuilderlasvegas.org",    url: "https://app.clickup.com/24512055/v/li/901113617108" },
+    { name: "[NV] lasvegascater.com",          url: "https://app.clickup.com/24512055/v/li/901113617134" },
+    { name: "[NV] epoxyflooringlasvegas.com",  url: "https://app.clickup.com/24512055/v/li/901113617138" },
+    { name: "[NV] lasvegasepoxyfloors.com",    url: "https://app.clickup.com/24512055/v/li/901113617140" },
+    { name: "[NV] hendersontreeservice.com",   url: "https://app.clickup.com/24512055/v/li/901113617144" },
+    { name: "[NV] treeservicehenderson.com",   url: "https://app.clickup.com/24512055/v/li/901113617148" },
+    { name: "[NV] triolandscapinglasvegas.com",url: "https://app.clickup.com/24512055/v/li/901113617159" },
+    { name: "[NV] Triotreetrimming.com",       url: "https://app.clickup.com/24512055/v/li/901113617171" },
+  ]},
+  { state: "Ohio",        folder: "90117883492", sites: [
+    { name: "[OH] bellevueepoxy.com",            url: "https://app.clickup.com/24512055/v/li/901113617029" },
+    { name: "[OH] epoxydayton.com",              url: "https://app.clickup.com/24512055/v/li/901113617030" },
+    { name: "[OH] epoxyflooringcincinnati.com",  url: "https://app.clickup.com/24512055/v/li/901113617033" },
+    { name: "[OH] epoxyflooringcolumbus.com",    url: "https://app.clickup.com/24512055/v/li/901113617037" },
+    { name: "[OH] epoxyflooringspringfield.com", url: "https://app.clickup.com/24512055/v/li/901113617039" },
+    { name: "[OH] epoxyflooringtulsa.com",       url: "https://app.clickup.com/24512055/v/li/901113617042" },
+    { name: "[OH] epoxyseattle.org",             url: "https://app.clickup.com/24512055/v/li/901113617044" },
+    { name: "[OH] epoxyspokane.com",             url: "https://app.clickup.com/24512055/v/li/901113617046" },
+    { name: "[OH] epoxytacoma.com",              url: "https://app.clickup.com/24512055/v/li/901113617047" },
+    { name: "[OH] ohioepoxyflooring.com",        url: "https://app.clickup.com/24512055/v/li/901113617048" },
+    { name: "[OH] epoxyfloorstoledo.com",        url: "https://app.clickup.com/24512055/v/li/901113617114" },
+  ]},
+  { state: "Oklahoma",    folder: "90117892519", sites: [
+    { name: "[OK] epoxyflooringtulsa.com", url: "https://app.clickup.com/24512055/v/li/901113617052" },
+  ]},
+  { state: "Texas",       folder: "90117883493", sites: [
+    { name: "[TX] houstondriveway.com",         url: "https://app.clickup.com/24512055/v/li/901113617060" },
+    { name: "[TX] texaniacdriveways.com",        url: "https://app.clickup.com/24512055/v/li/901113617061" },
+    { name: "[TX] epoxydallastx.com",            url: "https://app.clickup.com/24512055/v/li/901113637445" },
+    { name: "[TX] epoxyarlington.com",           url: "https://app.clickup.com/24512055/v/li/901113637487" },
+    { name: "[TX] epoxyflooringfortworth.com",   url: "https://app.clickup.com/24512055/v/li/901113637505" },
+    { name: "[TX] epoxyplano.com",               url: "https://app.clickup.com/24512055/v/li/901113637511" },
+    { name: "[TX] pooldeckdallas.com",           url: "https://app.clickup.com/24512055/v/li/901113637527" },
+    { name: "[TX] polishedconcretedallastx.com", url: "https://app.clickup.com/24512055/v/li/901113637562" },
+  ]},
+  { state: "Washington",  folder: "90117892521", sites: [
+    { name: "[WA] bellevueepoxy.com",  url: "https://app.clickup.com/24512055/v/li/901113617053" },
+    { name: "[WA] epoxyseattle.org",   url: "https://app.clickup.com/24512055/v/li/901113617054" },
+    { name: "[WA] epoxyspokane.com",   url: "https://app.clickup.com/24512055/v/li/901113617056" },
+    { name: "[WA] epoxytacoma.com",    url: "https://app.clickup.com/24512055/v/li/901113617057" },
+  ]},
+];
+
+const LG_UNASSIGNED = [
+  { state: "STATE (Template)", folder: "90117607786", sites: [
+    { name: "[XX] site.com", url: "https://app.clickup.com/24512055/v/li/901113604741" },
+  ]},
+  { state: "Michigan", folder: "90117899024", sites: [
+    { name: "[MI] pooldeckgrandrapids.com", url: "https://app.clickup.com/24512055/v/li/901113617131" },
+  ]},
+];
+
+const WEBSITENESS = [
+  { name: "General / All",    url: "https://app.clickup.com/24512055/v/li/901113206202" },
+  { name: "Marketing",        url: "https://app.clickup.com/24512055/v/li/901113098646" },
+  { name: "Operations",       url: "https://app.clickup.com/24512055/v/li/901113206209" },
+  { name: "Sales / Biz Dev",  url: "https://app.clickup.com/24512055/v/li/901113206212" },
+  { name: "People / HR",      url: "https://app.clickup.com/24512055/v/li/901113206223" },
+  { name: "Client Fulfillment", url: "https://app.clickup.com/24512055/v/li/901113244928" },
+  { name: "All Initiative Ideas", url: "https://app.clickup.com/24512055/v/li/901113153710" },
+];
+
+const INTERNAL_PLAYBOOK = [
+  { name: "Mission, Vision, Values", url: "https://app.clickup.com/24512055/v/db/qc1hq-179531" },
+];
+
+// ─────────────────────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────────────────────
+let view = localStorage.getItem('belen_view') || 'home';
+let clientDetailName = null;    // active client name or null
+let lgTab = 'assigned';         // 'assigned' | 'unassigned'
+let lgStateOpen = null;         // open state name
+
+function navigate(v) {
+  view = v;
+  clientDetailName = null;
+  lgStateOpen = null;
+  localStorage.setItem('belen_view', v);
+  render();
+}
+
+// ─────────────────────────────────────────────────────────────
+// SIDEBAR
+// ─────────────────────────────────────────────────────────────
+function renderSidebar() {
+  document.getElementById('sidebar').innerHTML = `
+    <button class="sidebar-item ${view==='home'?'active':''}" onclick="navigate('home')">
+      <span class="icon">🏠</span> Assigned to Me
+    </button>
+    <button class="sidebar-item ${view==='pm'?'active':''}" onclick="navigate('pm')">
+      <span class="icon">⚙️</span> PM Workspace
+    </button>
+    <button class="sidebar-item ${view==='clients'?'active':''}" onclick="navigate('clients')">
+      <span class="icon">👥</span> Active Clients
+    </button>
+    <button class="sidebar-item ${view==='lg'?'active':''}" onclick="navigate('lg')">
+      <span class="icon">📍</span> LG Sites
+    </button>
+    <button class="sidebar-item ${view==='playbook'?'active':''}" onclick="navigate('playbook')">
+      <span class="icon">🏛️</span> Internal Playbook
+    </button>
+  `;
+}
+
+// ─────────────────────────────────────────────────────────────
+// CARD HELPERS
+// ─────────────────────────────────────────────────────────────
+function splitEmoji(name) {
+  // Split leading emoji from the rest of the name
+  const m = name.match(/^(\p{Emoji_Presentation}[️‍\p{Emoji_Presentation}]*)\s*(.*)/u);
+  if (m) return { emoji: m[1], label: m[2] };
+  return { emoji: null, label: name };
+}
+
+function card(item) {
+  const { emoji, label } = splitEmoji(item.name);
+  const inner = emoji
+    ? `<span style="font-size:16px;line-height:1;flex-shrink:0">${emoji}</span><span>${label}</span>`
+    : `<span>${label}</span>`;
+  return `<a class="card" href="${item.url}" target="_blank" rel="noopener">
+    <div class="card-name">${inner}</div>
+  </a>`;
+}
+
+// ─────────────────────────────────────────────────────────────
+// VIEWS
+// ─────────────────────────────────────────────────────────────
+
+function renderHome() {
+  return `
+    <a class="hero-link" href="${BELEN.assignedToMe.url}" target="_blank" rel="noopener">
+      <div class="hl-left">
+        <div class="hl-icon">🏠</div>
+        <div>
+          <div class="hl-title">Assigned to Me</div>
+          <div class="hl-sub">Your active task list</div>
+        </div>
+      </div>
+      <div class="hl-arrow">↗</div>
+    </a>
+
+    <div class="section">
+      <div class="section-title">Create a Task</div>
+      <div class="cards">${BELEN.createTasks.map(card).join('')}</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Additional</div>
+      <div class="cards">${BELEN.additional.map(card).join('')}</div>
+    </div>`;
+}
+
+function renderPM() {
+  return `
+    <div class="section">
+      <div class="section-title">View All Tasks</div>
+      <div class="cards">${PM_WORKSPACE.tasks.map(card).join('')}</div>
+    </div>
+    <div class="section">
+      <div class="section-title">Additional Resources</div>
+      <div class="cards">${PM_WORKSPACE.resources.map(card).join('')}</div>
+    </div>`;
+}
+
+function renderClients() {
+  if (clientDetailName) {
+    const client = ACTIVE_CLIENTS.find(c => c.name === clientDetailName);
+    return `
+      <button class="back-btn" onclick="clientDetailName=null;render()">← Active Clients</button>
+      <div class="section">
+        <div class="section-title">${client.name}</div>
+        <div class="client-detail-grid">
+          ${client.items.map(i => `
+            <a class="client-detail-card" href="${i.url}" target="_blank" rel="noopener">
+              <div class="cdc-icon">${i.icon}</div>
+              <div class="cdc-name">${i.name}</div>
+            </a>
+          `).join('')}
+        </div>
+      </div>`;
+  }
+
+  return `
+    <div class="section">
+      <div class="section-title">Active Clients <span style="font-weight:400;font-size:11px;margin-left:4px;color:var(--muted)">${ACTIVE_CLIENTS.length} clients</span></div>
+      <div class="client-grid">
+        ${ACTIVE_CLIENTS.map(c => `
+          <button class="client-btn" onclick="clientDetailName='${c.name.replace(/'/g,"\\'")}';render()">
+            <span class="dot"></span>${c.name}
+          </button>
+        `).join('')}
+      </div>
+    </div>`;
+}
+
+function renderLG() {
+  const tabs = `
+    <div class="tabs">
+      <button class="tab-btn ${lgTab==='assigned'?'active':''}" onclick="lgTab='assigned';lgStateOpen=null;render()">LG Assigned</button>
+      <button class="tab-btn ${lgTab==='unassigned'?'active':''}" onclick="lgTab='unassigned';lgStateOpen=null;render()">LG Unassigned</button>
+    </div>`;
+
+  const data = lgTab === 'assigned' ? LG_ASSIGNED : LG_UNASSIGNED;
+
+  if (lgStateOpen) {
+    const folder = data.find(f => f.state === lgStateOpen);
+    return tabs + `
+      <button class="back-btn" onclick="lgStateOpen=null;render()">← LG ${lgTab==='assigned'?'Assigned':'Unassigned'}</button>
+      <div class="section">
+        <div class="section-title">${folder.state} <span style="font-weight:400;font-size:11px;color:var(--muted)">${folder.sites.length} site${folder.sites.length!==1?'s':''}</span></div>
+        <div class="site-list">
+          ${folder.sites.map(s => `<a class="site-link" href="${s.url}" target="_blank" rel="noopener">${s.name}</a>`).join('')}
+        </div>
+      </div>`;
+  }
+
+  return tabs + `
+    <div class="section">
+      <div class="section-title">${lgTab==='assigned'?'States':'Folders'}</div>
+      <div class="state-grid">
+        ${data.map(f => `
+          <button class="state-btn" onclick="lgStateOpen='${f.state.replace(/'/g,"\\'")}';render()">
+            ${f.state} <span class="state-count">${f.sites.length}</span>
+          </button>
+        `).join('')}
+      </div>
+    </div>`;
+}
+
+function renderWebsiteness() {
+  return `
+    <div class="section">
+      <div class="section-title">Department Tasks</div>
+      <div class="cards">
+        ${WEBSITENESS.slice(0,6).map(card).join('')}
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">Initiatives</div>
+      <div class="cards">
+        ${WEBSITENESS.slice(6).map(card).join('')}
+      </div>
+    </div>`;
+}
+
+function renderPlaybook() {
+  return `
+    <div class="section">
+      <div class="section-title">Internal Playbook</div>
+      <div class="cards">
+        ${INTERNAL_PLAYBOOK.map(card).join('')}
+      </div>
+    </div>`;
+}
+
+// ─────────────────────────────────────────────────────────────
+// RENDER
+// ─────────────────────────────────────────────────────────────
+function render() {
+  renderSidebar();
+  let content = '';
+  if (view === 'home')          content = renderHome();
+  else if (view === 'pm')       content = renderPM();
+  else if (view === 'clients')  content = renderClients();
+  else if (view === 'lg')       content = renderLG();
+  else if (view === 'playbook') content = renderPlaybook();
+  document.getElementById('main').innerHTML = content;
+}
+
+render();
+</script>
+</body>
+</html>
